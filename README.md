@@ -11,5 +11,6 @@ H2 Database - alle Infos im application.properties
 - Spieler hinzufuegen
 - Schiffe hinzufuegen (aktuell nur 1x1)
 - Mit Guess raten, wo Schiffe stehen
+- Mit display spielfeld anzeigen
 
 "~" ist Wasser, Schiffe haben die Spieler ID, wenn sie getroffen sind "x"
