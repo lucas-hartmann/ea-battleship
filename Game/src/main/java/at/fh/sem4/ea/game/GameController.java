@@ -2,9 +2,7 @@ package at.fh.sem4.ea.game;
 
 import at.fh.sem4.ea.game.model.*;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,6 +39,11 @@ public class GameController {
         return gameService.getGameDisplay(gameId);
     }
 
+//    @ExceptionHandler(CallNotPermittedException.class)
+//    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+//    public String handleCircuitBreaker() {
+//        return "Circuit breaker is open";
+//    }
 
 }
 

@@ -24,6 +24,8 @@ public class GameService {
     private final GuessRepository guessRepository;
     private final RestTemplate restTemplate;
 
+//    @Autowired
+//    private Resilience4JCircuitBreakerFactory circuitBreakerFactory;
 
     public Game createGame() {
         Game game = new Game();
@@ -106,5 +108,10 @@ public class GameService {
         }
 
         return display.toString();
+
+//        return circuitBreakerFactory.create("breaker").run(() ->
+//                rest.getForObject(URL + "/delay/" + seconds, HttpBinResponseDto.class)
+//        );
+
     }
 }
