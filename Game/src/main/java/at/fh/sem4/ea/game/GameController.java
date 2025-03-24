@@ -10,7 +10,6 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class GameController {
     private final GameService gameService;
-    private final RestTemplate restTemplate;
 
     @PostMapping("/create")
     public Game createGame() {
@@ -32,12 +31,15 @@ public class GameController {
         gameService.createShip(x, y, gameId, playerId);
     }
 
-//    @PostMapping("/createPlayer")
-//    public void postPlayer(@RequestBody PlayerDTO playerDTO){
-//        gameService.createPlayer(playerDTO.getName(), playerDTO.getGameId());
-//    }
+    @PostMapping("/guess")
+    public String makeGuess(@RequestParam Long gameId, @RequestParam int x, @RequestParam int y) {
+        return gameService.guess(gameId, x, y);
+    }
 
-
+    @PostMapping("/display")
+    public String makeGuess(@RequestParam Long gameId) {
+        return gameService.getGameDisplay(gameId);
+    }
 
 
 }

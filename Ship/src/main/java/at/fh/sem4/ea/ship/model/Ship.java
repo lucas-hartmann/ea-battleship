@@ -19,11 +19,7 @@ public class Ship {
 
     private boolean isSunk;
 
-//    @ManyToOne
-//    @JoinColumn(name = "game_id")
     private Long gameid;
 
-//    @ManyToOne
-//    @JoinColumn(name = "player_id", nullable = false)
     private Long playerid;
 }
