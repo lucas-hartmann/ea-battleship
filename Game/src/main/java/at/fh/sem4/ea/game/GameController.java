@@ -1,7 +1,9 @@
 package at.fh.sem4.ea.game;
 
 import at.fh.sem4.ea.game.model.*;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -39,11 +41,11 @@ public class GameController {
         return gameService.getGameDisplay(gameId);
     }
 
-//    @ExceptionHandler(CallNotPermittedException.class)
-//    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
-//    public String handleCircuitBreaker() {
-//        return "Circuit breaker is open";
-//    }
+    @ExceptionHandler(CallNotPermittedException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public String handleCircuitBreaker() {
+        return "Circuit breaker is open";
+    }
 
 }
 

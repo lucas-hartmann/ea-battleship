@@ -8,13 +8,14 @@ import at.fh.sem4.ea.game.model.ShipDTO;
 import at.fh.sem4.ea.game.repo.GameRepository;
 import at.fh.sem4.ea.game.repo.GuessRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JCircuitBreakerFactory;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,8 +25,8 @@ public class GameService {
     private final GuessRepository guessRepository;
     private final RestTemplate restTemplate;
 
-//    @Autowired
-//    private Resilience4JCircuitBreakerFactory circuitBreakerFactory;
+    @Autowired
+    private Resilience4JCircuitBreakerFactory circuitBreakerFactory;
 
     public Game createGame() {
         Game game = new Game();
@@ -35,14 +36,28 @@ public class GameService {
         return gameRepository.existsById(gameId);
     }
 
-    public PlayerDTO createPlayer(String name, Long gameId) {
+
+    public void createPlayer(String name, Long gameId) {
         String playerServiceUrl = "http://localhost:8082/createPlayer?name=" + name + "&gameId=" + gameId;
-        return restTemplate.postForObject(playerServiceUrl, null, PlayerDTO.class);
+        circuitBreakerFactory.create("createPlayerBreaker").run(() ->
+                        restTemplate.postForObject(playerServiceUrl, null, PlayerDTO.class),
+                throwable -> {
+                    System.out.println("Fallback: Returning null PlayerDTO");
+                    return null;
+                }
+        );
     }
 
-    public ShipDTO createShip(int x, int y, Long gameid, Long playerid){
+    public ShipDTO createShip(int x, int y, Long gameid, Long playerid) {
         String shipServiceUrl = "http://localhost:8083/createShip?x=" + x + "&y=" + y + "&gameId=" + gameid + "&playerId=" + playerid;
-        return restTemplate.postForObject(shipServiceUrl, null, ShipDTO.class);
+
+        return circuitBreakerFactory.create("createShipBreaker").run(
+                () -> restTemplate.postForObject(shipServiceUrl, null, ShipDTO.class),
+                throwable -> {
+                    System.out.println("Fallback: Could not create ship");
+                    return null;
+                }
+        );
     }
 
     public String guess(Long gameId, int x, int y) {
@@ -58,12 +73,18 @@ public class GameService {
                 .queryParam("y", y)
                 .toUriString();
 
-        Boolean hit = restTemplate.getForObject(url, Boolean.class);
+        Boolean hit = circuitBreakerFactory.create("guessBreaker").run(
+                () -> restTemplate.getForObject(url, Boolean.class),
+                throwable -> {
+                    System.out.println("Fallback: Could not get guess result");
+                    return false;
+                }
+        );
 
-        guess.setHit(hit != null && hit);
+        guess.setHit(hit);
         guessRepository.save(guess);
 
-        return hit != null && hit ? "Hit!" : "Miss!";
+        return hit ? "Hit!" : "Miss!";
     }
 
     public String getGameDisplay(Long gameId) {
@@ -78,7 +99,13 @@ public class GameService {
                 .queryParam("gameId", gameId)
                 .toUriString();
 
-        ShipDTO[] ships = restTemplate.getForObject(url, ShipDTO[].class);
+        ShipDTO[] ships = circuitBreakerFactory.create("getGameDisplayBreaker").run(
+                () -> restTemplate.getForObject(url, ShipDTO[].class),
+                throwable -> {
+                    System.out.println("Fallback: Could not retrieve ships");
+                    return new ShipDTO[0];
+                }
+        );
 
         List<Guess> hits = guessRepository.findByGameIdAndHitIsTrue(gameId);
 
@@ -108,10 +135,5 @@ public class GameService {
         }
 
         return display.toString();
-
-//        return circuitBreakerFactory.create("breaker").run(() ->
-//                rest.getForObject(URL + "/delay/" + seconds, HttpBinResponseDto.class)
-//        );
-
     }
 }
