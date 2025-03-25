@@ -19,4 +19,11 @@ public class Player {
     private String name;
 
     private Long gameid;
+
+    public Player(String name, Long gameId) {
+    }
+
+    public Player() {
+
+    }
 }

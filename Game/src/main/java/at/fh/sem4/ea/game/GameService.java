@@ -3,11 +3,11 @@ package at.fh.sem4.ea.game;
 
 import at.fh.sem4.ea.game.model.Game;
 import at.fh.sem4.ea.game.model.Guess;
-import at.fh.sem4.ea.game.model.PlayerDTO;
 import at.fh.sem4.ea.game.model.ShipDTO;
 import at.fh.sem4.ea.game.repo.GameRepository;
 import at.fh.sem4.ea.game.repo.GuessRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -27,6 +27,9 @@ public class GameService {
 
     @Autowired
     private Resilience4JCircuitBreakerFactory circuitBreakerFactory;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
 
     public Game createGame() {
         Game game = new Game();
@@ -36,17 +39,23 @@ public class GameService {
         return gameRepository.existsById(gameId);
     }
 
-
     public void createPlayer(String name, Long gameId) {
-        String playerServiceUrl = "http://localhost:8082/createPlayer?name=" + name + "&gameId=" + gameId;
-        circuitBreakerFactory.create("createPlayerBreaker").run(() ->
-                        restTemplate.postForObject(playerServiceUrl, null, PlayerDTO.class),
-                throwable -> {
-                    System.out.println("Fallback: Returning null PlayerDTO");
-                    return null;
-                }
-        );
+        String message = gameId + "," + name;
+        rabbitTemplate.convertAndSend("battleship-exchange", "player.created", message);
+        System.out.println("Player creation event sent: " + message);
     }
+
+//    REST
+//    public void createPlayer(String name, Long gameId) {
+//        String playerServiceUrl = "http://localhost:8082/createPlayer?name=" + name + "&gameId=" + gameId;
+//        circuitBreakerFactory.create("createPlayerBreaker").run(() ->
+//                        restTemplate.postForObject(playerServiceUrl, null, PlayerDTO.class),
+//                throwable -> {
+//                    System.out.println("Fallback: Returning null PlayerDTO");
+//                    return null;
+//                }
+//        );
+//    }
 
     public ShipDTO createShip(int x, int y, Long gameid, Long playerid) {
         String shipServiceUrl = "http://localhost:8083/createShip?x=" + x + "&y=" + y + "&gameId=" + gameid + "&playerId=" + playerid;

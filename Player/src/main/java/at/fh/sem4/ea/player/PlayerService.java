@@ -4,8 +4,11 @@ package at.fh.sem4.ea.player;
 import at.fh.sem4.ea.player.model.Player;
 import at.fh.sem4.ea.player.repo.PlayerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor

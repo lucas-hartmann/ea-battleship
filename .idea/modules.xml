@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Battleship.iml" filepath="$PROJECT_DIR$/.idea/Battleship.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Game.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Game.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Player.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Player.main.iml" />
     </modules>
   </component>
 </project>
