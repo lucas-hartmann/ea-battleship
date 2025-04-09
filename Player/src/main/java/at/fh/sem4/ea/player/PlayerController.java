@@ -25,5 +25,4 @@ public class PlayerController {
         playerService.addPlayer(gameId, name);
         System.out.println("Player created: " + name);
     }
-
 }

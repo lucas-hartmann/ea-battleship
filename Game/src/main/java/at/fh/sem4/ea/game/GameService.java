@@ -58,7 +58,7 @@ public class GameService {
 //    }
 
     public ShipDTO createShip(int x, int y, Long gameid, Long playerid) {
-        String shipServiceUrl = "http://localhost:8083/createShip?x=" + x + "&y=" + y + "&gameId=" + gameid + "&playerId=" + playerid;
+        String shipServiceUrl = "http://Ship/createShip?x=" + x + "&y=" + y + "&gameId=" + gameid + "&playerId=" + playerid;
 
         return circuitBreakerFactory.create("createShipBreaker").run(
                 () -> restTemplate.postForObject(shipServiceUrl, null, ShipDTO.class),
@@ -70,7 +70,7 @@ public class GameService {
     }
 
     public String guess(Long gameId, int x, int y) {
-        String shipServiceUrl = "http://localhost:8083";
+        String shipServiceUrl = "http://Ship";
         Guess guess = new Guess();
         guess.setGame(gameRepository.findById(gameId).orElseThrow());
         guess.setX(x);
@@ -97,7 +97,7 @@ public class GameService {
     }
 
     public String getGameDisplay(Long gameId) {
-        String shipServiceUrl = "http://localhost:8083";
+        String shipServiceUrl = "http://Ship";
         char[][] board = new char[50][50];
 
         for (int i = 0; i < 50; i++) {
